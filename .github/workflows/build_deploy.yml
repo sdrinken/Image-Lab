@@ -7,7 +7,7 @@ jobs:
   build-deploy:
     runs-on: ubuntu-latest
     env:
-      ACR_NAME: webmongodb
+      ACR_NAME: webmongodbacr
       AKS_RESOURCE_GROUP: aks-private-rg
       AKS_CLUSTER_NAME: private-aks
       ACR_LOGIN_SERVER: webmongodb.azurecr.io
