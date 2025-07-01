@@ -1,0 +1,13 @@
+image:
+  repository: <your-acr-name>.azurecr.io/mongo-webform
+  tag: latest
+
+service:
+  port: 80
+
+env:
+  mongoHost: 192.168.X.X
+  mongoUser: yourUser
+  mongoPass: yourPassword
+
+namespace: frontend

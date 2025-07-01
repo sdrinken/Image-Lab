@@ -1,0 +1,27 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: mongo-webform
+  namespace: {{ .Values.namespace }}
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: mongo-webform
+  template:
+    metadata:
+      labels:
+        app: mongo-webform
+    spec:
+      containers:
+      - name: mongo-webform
+        image: "{{ .Values.image.repository }}:{{ .Values.image.tag }}"
+        ports:
+        - containerPort: 3000
+        env:
+        - name: MONGO_HOST
+          value: {{ .Values.env.mongoHost | quote }}
+        - name: MONGO_USER
+          value: {{ .Values.env.mongoUser | quote }}
+        - name: MONGO_PASS
+          value: {{ .Values.env.mongoPass | quote }}
