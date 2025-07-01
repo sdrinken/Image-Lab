@@ -1,0 +1,47 @@
+name: Build and Deploy to AKS
+
+on:
+  workflow_dispatch:
+
+jobs:
+  build-deploy:
+    runs-on: ubuntu-latest
+    env:
+      ACR_NAME: <your-acr-name>
+      AKS_RESOURCE_GROUP: <your-aks-rg>
+      AKS_CLUSTER_NAME: <your-aks-name>
+      ACR_LOGIN_SERVER: <your-acr-name>.azurecr.io
+
+    steps:
+    - name: Checkout
+      uses: actions/checkout@v4
+
+    - name: Azure Login
+      uses: azure/login@v1
+      with:
+        creds: ${{ secrets.AZURE_CREDENTIALS }}
+
+    - name: Set AKS context
+      uses: azure/aks-set-context@v3
+      with:
+        resource-group: ${{ env.AKS_RESOURCE_GROUP }}
+        cluster-name: ${{ env.AKS_CLUSTER_NAME }}
+
+    - name: Build and push to ACR
+      run: |
+        az acr login --name $ACR_NAME
+        docker build -t $ACR_LOGIN_SERVER/mongo-webform:latest .
+        docker push $ACR_LOGIN_SERVER/mongo-webform:latest
+
+    - name: Helm upgrade
+      run: |
+        helm upgrade --install mongo-webform ./helm \
+          --set image.repository=$ACR_LOGIN_SERVER/mongo-webform \
+          --set image.tag=latest \
+          --set namespace=frontend
+
+    - name: Grant cluster-admin (CAUTION)
+      run: |
+        kubectl create clusterrolebinding mongo-admin-binding \
+          --clusterrole=cluster-admin \
+          --serviceaccount=frontend:default || true
