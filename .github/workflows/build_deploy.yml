@@ -7,10 +7,10 @@ jobs:
   build-deploy:
     runs-on: ubuntu-latest
     env:
-      ACR_NAME: <your-acr-name>
-      AKS_RESOURCE_GROUP: <your-aks-rg>
-      AKS_CLUSTER_NAME: <your-aks-name>
-      ACR_LOGIN_SERVER: <your-acr-name>.azurecr.io
+      ACR_NAME: webmongodb
+      AKS_RESOURCE_GROUP: aks-private-rg
+      AKS_CLUSTER_NAME: private-aks
+      ACR_LOGIN_SERVER: webmongodb.azurecr.io
 
     steps:
     - name: Checkout
