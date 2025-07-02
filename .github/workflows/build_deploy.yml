@@ -6,9 +6,7 @@ on:
 jobs:
   build-deploy:
     runs-on: [self-hosted, linux, x64]
-    defaults:
-      run:
-        working-directory: /
+    
     env:
       ACR_NAME: webmongodbacr
       AKS_RESOURCE_GROUP: aks-private-rg
