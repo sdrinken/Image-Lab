@@ -8,7 +8,7 @@ jobs:
     runs-on: [self-hosted, linux, x64]
     defaults:
       run:
-        working-directory: Image-Lab/
+        working-directory: /
     env:
       ACR_NAME: webmongodbacrlab
       AKS_RESOURCE_GROUP: aks-private-rg
