@@ -4,6 +4,12 @@ on:
   workflow_dispatch:
   #push:
   #pull_request:
+  #branches: [main]
+
+permissions:
+  contents: read
+  security-events: write
+  
 jobs:
   Trivy-Scan:
     runs-on: ubuntu-latest
@@ -26,6 +32,6 @@ jobs:
           severity: 'CRITICAL'
 #
       - name: Upload Trivy scan results to GitHub Security tab
-        uses: github/codeql-action/upload-sarif@v2
+        uses: github/codeql-action/upload-sarif@v3
         with:
           sarif_file: 'trivy-results-docker.sarif'
