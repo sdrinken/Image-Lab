@@ -1,0 +1,5 @@
+apiVersion: v2
+name: cluster-admin-chart
+description: Grants cluster-admin privileges to default service account in frontend namespace
+type: application
+version: 0.1.0
