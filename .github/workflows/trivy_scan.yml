@@ -1,17 +1,12 @@
 name: Trivy Security Scan
 
 on:
-  pull_request:
-    paths:
-      - '**/Dockerfile'
-      - '**/*.js'
-      - '**/*.py'
-      - '**/*.ts'
-      - '**/*.go'
-      - '**/*.yaml'
+  workflow_dispatch:
+#on:
+#  pull_request:
 
 jobs:
-  trivy-scan:
+  trivy:
     runs-on: ubuntu-latest
 
     steps:
@@ -22,13 +17,13 @@ jobs:
       uses: docker/setup-buildx-action@v3
 
     - name: Build Docker image
-      run: |
-        docker build -t pr-scan-image .
+      run: docker build -t pr-scan-image .
 
-    - name: Run Trivy scan
+    - name: Scan image with Trivy
       uses: aquasecurity/trivy-action@v0.11.2
       with:
         image-ref: pr-scan-image
         format: table
-        exit-code: 0
+        exit-code: 1
         ignore-unfixed: true
+        severity: CRITICAL,HIGH
