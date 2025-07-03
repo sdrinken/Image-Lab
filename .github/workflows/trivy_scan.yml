@@ -7,6 +7,7 @@ on:
 permissions:
   contents: read
   security-events: write
+  pull-requests: write
   
 jobs:
   Trivy-Scan:
@@ -20,7 +21,7 @@ jobs:
         run: |
           docker build -t pr-scan-image .
 #
-      - name: Run Trivy vulnerability scanner in docker mode
+      - name: Run Trivy vulnerability scanner in docker mode Sarif
         uses: aquasecurity/trivy-action@master
         with:
           image-ref: pr-scan-image
@@ -28,8 +29,19 @@ jobs:
           template: '@/contrib/sarif.tpl'
           output: 'trivy-results-docker.sarif'
           severity: CRITICAL,HIGH,MEDIUM,LOW
-
+      
+      - name: Run Trivy vulnerability scanner in docker mode Sarif
+        uses: aquasecurity/trivy-action@master
+        with:
+          image-ref: pr-scan-image
+          format: table
+          output: trivy-report.md
+          severity: CRITICAL,HIGH,MEDIUM,LOW
+#
       - name: Upload Trivy scan results to GitHub Security tab
         uses: github/codeql-action/upload-sarif@v3
         with:
           sarif_file: 'trivy-results-docker.sarif'
+
+      - name: Create or update PR comment
+        uses: peter-evans/create-or-update-comment@v4
