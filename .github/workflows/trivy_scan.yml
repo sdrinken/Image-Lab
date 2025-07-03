@@ -1,28 +1,33 @@
-name: Trivy Security Scan
-
+name: build
 on:
-  workflow_dispatch:
-#on:
+#  push:
+   workflow_dispatch:
+    branches:
+      - main
 #  pull_request:
-
 jobs:
-  trivy:
-    runs-on: ubuntu-latest
-
+  build:
+    name: Build
+    runs-on: ubuntu-24.04
     steps:
-    - name: Checkout code
-      uses: actions/checkout@v4
+      - name: Checkout code
+        uses: actions/checkout@v4
 
-    - name: Set up Docker Buildx
-      uses: docker/setup-buildx-action@v3
+      - name: Build an image from Dockerfile
+        run: |
+          docker build -t docker.io/my-organization/my-app:${{ github.sha }} .
 
-    - name: Build Docker image
-      run: docker build -t pr-scan-image .
+      - name: Run Trivy vulnerability scanner
+        uses: aquasecurity/trivy-action@0.28.0
+        with:
+          image-ref: 'docker.io/my-organization/my-app:${{ github.sha }}'
+          format: 'sarif'
+          output: 'trivy-results.sarif'
 
-    - name: Scan image with Trivy
-      uses: aquasecurity/trivy-action@v0.31.0
-      with:
-        image-ref: pr-scan-image
+      - name: Upload Trivy scan results to GitHub Security tab
+        uses: github/codeql-action/upload-sarif@v3
+        with:
+          sarif_file: 'trivy-results.sarif'
         format: table
         exit-code: 1
         ignore-unfixed: true
