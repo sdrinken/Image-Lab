@@ -2,9 +2,7 @@ name: "Container Scanning"
 
 on:
   workflow_dispatch:
-  #push:
-  #pull_request:
-  #branches: [main]
+  pull_request:
 
 permissions:
   contents: read
