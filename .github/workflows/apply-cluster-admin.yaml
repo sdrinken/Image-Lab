@@ -1,0 +1,30 @@
+name: Apply Cluster Admin Role to Frontend Namespace
+
+on:
+  workflow_dispatch:
+
+jobs:
+  build-deploy:
+    runs-on: [self-hosted, linux, x64]
+    env:
+      AKS_RESOURCE_GROUP: aks-private-rg
+      AKS_CLUSTER_NAME: private-aks
+
+    steps:
+      - name: Checkout repo
+        uses: actions/checkout@v4
+
+      - name: Azure Login
+        uses: azure/login@v1
+        with:
+          creds: ${{ secrets.AZURE_CREDENTIALS }}
+
+      - name: Set AKS context
+        uses: azure/aks-set-context@v3
+        with:
+          resource-group: ${{ env.AKS_RESOURCE_GROUP }}
+          cluster-name: ${{ env.AKS_CLUSTER_NAME }}
+
+      - name: Deploy cluster-admin Helm chart
+        run: |
+          helm upgrade --install cluster-admin ./AKS/helm/
