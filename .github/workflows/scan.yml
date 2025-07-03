@@ -1,0 +1,30 @@
+name: "Container Scanning V2"
+
+on:
+  workflow_dispatch:
+  #push:
+  #pull_request:
+  #branches: [main]
+
+permissions:
+  contents: read
+  security-events: write
+  
+jobs:
+  Trivy-Scan:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v2
+
+      - name: Build an image from Dockerfile
+        run: |
+          docker build -t pr-scan-image .
+#
+      - name: Run Trivy vulnerability scanner in docker mode
+        uses: aquasecurity/trivy-action@master
+        with:
+          image-ref: pr-scan-image
+          format: table
+          severity: CRITICAL,HIGH,MEDIUM
