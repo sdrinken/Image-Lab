@@ -22,7 +22,7 @@ jobs:
         run: |
           docker build -t pr-scan-image .
 #
-      - name: Run Trivy vulnerability scanner in docker mode Sarif
+      - name: Run Trivy vulnerability scanner in docker mode sarif
         uses: aquasecurity/trivy-action@master
         with:
           image-ref: pr-scan-image
@@ -31,7 +31,7 @@ jobs:
           output: 'trivy-results-docker.sarif'
           severity: CRITICAL,HIGH,MEDIUM,LOW
       
-      - name: Run Trivy vulnerability scanner in docker mode Sarif
+      - name: Run Trivy vulnerability scanner in docker mode table
         uses: aquasecurity/trivy-action@master
         with:
           image-ref: pr-scan-image
@@ -43,3 +43,9 @@ jobs:
         uses: github/codeql-action/upload-sarif@v3
         with:
           sarif_file: 'trivy-results-docker.sarif'
+
+      - name: Upload Trivy Markdown Report
+        uses: actions/upload-artifact@v4
+        with:
+          name: trivy-report
+          path: trivy-report.md
