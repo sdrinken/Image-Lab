@@ -1,34 +1,42 @@
-name: Trivy Security Scan
+name: "Container Scanning"
 
 on:
+  workflow_dispatch:
   pull_request:
-    paths:
-      - '**/Dockerfile'
-      - '**/*.js'
-      - '**/*.py'
-      - '**/*.ts'
-      - '**/*.go'
-      - '**/*.yaml'
 
+permissions:
+  contents: read
+  security-events: write
+  
 jobs:
-  trivy-scan:
+  Trivy-Scan:
     runs-on: ubuntu-latest
 
     steps:
-    - name: Checkout code
-      uses: actions/checkout@v4
+      - name: Checkout code
+        uses: actions/checkout@v2
 
-    - name: Set up Docker Buildx
-      uses: docker/setup-buildx-action@v3
+      - name: Build an image from Dockerfile
+        run: |
+          docker build -t pr-scan-image .
+#
+      - name: Run Trivy vulnerability scanner in docker mode
+        uses: aquasecurity/trivy-action@master
+        with:
+          image-ref: pr-scan-image
+          format: 'template'
+          template: '@/contrib/sarif.tpl'
+          output: 'trivy-results-docker.sarif'
+          severity: CRITICAL,HIGH,MEDIUM,LOW
+#
+      - name: Upload Trivy scan results to GitHub Security tab
+        uses: github/codeql-action/upload-sarif@v3
+        with:
+          sarif_file: 'trivy-results-docker.sarif'
 
-    - name: Build Docker image
-      run: |
-        docker build -t pr-scan-image .
-
-    - name: Run Trivy scan
-      uses: aquasecurity/trivy-action@v0.16.1
-      with:
-        image-ref: pr-scan-image
-        format: table
-        exit-code: 0  # use 1 if you want the PR to fail on vulnerabilities
-        ignore-unfixed: true
+      - name: Create or update PR comment
+        uses: peter-evans/create-or-update-comment@v4
+        with:
+          issue-number: ${{ github.event.pull_request.number }}
+          body-file: trivy-report.md
+          token: ${{ secrets.GITHUB_TOKEN }}
